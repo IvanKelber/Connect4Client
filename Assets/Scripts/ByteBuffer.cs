@@ -9,6 +9,12 @@ public class ByteBuffer
     List<byte> data;
     public byte[] Receiver;
 
+    public int Count {
+        get {
+            return data.Count;
+        }
+    }
+
     int lastRead = -1;
 
     public ByteBuffer() {

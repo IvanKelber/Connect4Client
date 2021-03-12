@@ -16,7 +16,8 @@ public class ClientHandle : MonoBehaviour
     // }
 
     public static void Default(Message message) {
-        Debug.Log($"Message from server: {message.GetContentStringList()}");
+        message.GetContentStringList().ForEach(Debug.Log);
+        // Debug.Log($"Message from server: {message.GetContentStringList()}");
     }
 
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System; 
@@ -11,12 +12,6 @@ using UnityEngine;
 public class TCP
 {
 
-    const int LISTEN_TIMEOUT = 10000; // Wait ten seconds before timing out... maybe this is too small
-
-
-    public static int dataBufferSize = 4096;
-
-
     public TcpClient socket;
 
     private NetworkStream stream;
@@ -25,11 +20,17 @@ public class TCP
     public delegate void ConnectCallback();
     private ConnectCallback connectCallback;
 
-    public delegate void ReceiveCallback(Message message);
-    private ReceiveCallback receiveCallback;
-
     private string ip;
     private int port;
+
+    private Thread listenerThread;
+    private bool listening = false;
+    private ConcurrentQueue<Message> messagesToProcess = new ConcurrentQueue<Message>();
+    public bool MessagesNeedProcessing {
+        get {
+            return !messagesToProcess.IsEmpty;
+        }
+    }
 
     public TCP(string ip, int port) {
         this.ip = ip;
@@ -40,17 +41,9 @@ public class TCP
         connectCallback = cb;
     }
 
-    public void SetReceiveCB(ReceiveCallback cb) {
-        receiveCallback = cb;
-    }
-
     public void Connect()
     {
-        socket = new TcpClient
-        {
-            ReceiveBufferSize = dataBufferSize,
-            SendBufferSize = dataBufferSize
-        };
+        socket = new TcpClient();
         receiveBuffer = new ByteBuffer();
         socket.BeginConnect(ip, port, OnConnect, socket);
     }
@@ -97,106 +90,66 @@ public class TCP
         }
         // Connection just completed
         stream = socket.GetStream();
-
+        StartListeningOnThread();
         connectCallback();
     }
 
-    public void ListenForResponse() {
+    public void StartListeningOnThread() {
+        listenerThread = new Thread(new ThreadStart(ListenForResponse));
+        listening = true;
+
+        listenerThread.Start();
+    }
+
+    public void OnDisconnect() {
+        listening = false;
+        listenerThread.Abort();
+        stream.Close();
+        socket.Close();
+    }
+
+    private void ListenForResponse() {
         Debug.Log("Listening for response");
-        int waitedMilliseconds = 0;
-        while(socket.Available == 0 && waitedMilliseconds < LISTEN_TIMEOUT) {
-            // Spin until socket gets some data available
-            Thread.Sleep(1);
-            waitedMilliseconds++;
-        }
-        if (waitedMilliseconds >= LISTEN_TIMEOUT) {
-            Debug.Log("CLIENT LISTENER TIMED OUT");
-            return;
-        }
-        // If there's data available then we read a byte
-        using (MemoryStream ms = new MemoryStream())
-        {
-
-            string str;
-
-            while(socket.Available > 0) {
-
-
-                byte[] data = new byte[socket.Available];
-                int numBytesRead = 0;
-                int bytesRead = 0;
-                while ( bytesRead < socket.Available &&
-                    (numBytesRead = stream.Read(data, 0, data.Length)) > 0)
-                {
-                    bytesRead += numBytesRead;
-                    ms.Write(data, 0, numBytesRead);
-                }
-                // string s = "[";
-                // foreach(byte b in ms.ToArray()) {
-                //     s += b + " ";
-                // }
-                // s += "]";
-                // Debug.Log("Message: " + s);
+        while (listening) {
+            while(socket.Available == 0) {
+                //wait
+                Thread.Sleep(1);
             }
-            receiveBuffer.Write(ms.ToArray());
+            // If there's data available then we read a byte
+            using (MemoryStream ms = new MemoryStream())
+            {
+                string str;
+                while(socket.Available > 0) {
+                    byte[] data = new byte[socket.Available];
+                    int numBytesRead = 0;
+                    int bytesRead = 0;
+                    while ( bytesRead < socket.Available &&
+                        (numBytesRead = stream.Read(data, 0, data.Length)) > 0)
+                    {
+                        bytesRead += numBytesRead;
+                        ms.Write(data, 0, numBytesRead);
+                    }
+                }
+                receiveBuffer.Write(ms.ToArray());
+                if(receiveBuffer.Count > 0) {
+                    OnReceive();
+                }
+            }
         }
-        OnReceive();
     }
 
     private void OnReceive()
     {
-        // receiveBuffer.Catchup();
         Message msg = Message.Deserialize(receiveBuffer);
-        receiveCallback(msg);
-        Debug.Log(msg.Content);
+        messagesToProcess.Enqueue(msg);
     }
 
+    public Message NextMessage() {
+        Message msg;
+        if(messagesToProcess.TryDequeue(out msg)) {
+            return msg;
+        }
+        throw new InvalidOperationException("No new messages available");
+    }
 
-
-
-//     private bool HandleData(byte[] _data)
-//     {
-//         int _packetLength = 0;
-
-//         receivedData.SetBytes(_data);
-
-//         if (receivedData.UnreadLength() >= 4)
-//         {
-//             _packetLength = receivedData.ReadInt();
-//             if (_packetLength <= 0)
-//             {
-//                 return true;
-//             }
-//         }
-
-//         while (_packetLength > 0 && _packetLength <= receivedData.UnreadLength())
-//         {
-//             byte[] _packetBytes = receivedData.ReadBytes(_packetLength);
-//             ThreadManager.ExecuteOnMainThread(() =>
-//             {
-//                 using (Packet _packet = new Packet(_packetBytes))
-//                 {
-//                     int _packetId = _packet.ReadInt();
-//                     packetHandlers[_packetId](_packet);
-//                 }
-//             });
-
-//             _packetLength = 0;
-//             if (receivedData.UnreadLength() >= 4)
-//             {
-//                 _packetLength = receivedData.ReadInt();
-//                 if (_packetLength <= 0)
-//                 {
-//                     return true;
-//                 }
-//             }
-//         }
-
-//         if (_packetLength <= 1)
-//         {
-//             return true;
-//         }
-
-//         return false;
-//     }
 }

@@ -21,12 +21,12 @@ public class Client : MonoBehaviour
     {
         tcp = new TCP(ip, port);
         tcp.SetConnectCB(OnConnect);
-        tcp.SetReceiveCB(HandleMessage);
     }
 
     private void Update() {
-            // Debug.Log("Update");
-        
+        if(tcp.MessagesNeedProcessing) {
+            StartCoroutine(HandleMessage(tcp.NextMessage()));
+        }
     }
 
     public void ConnectToServer()
@@ -38,22 +38,31 @@ public class Client : MonoBehaviour
     }
 
     public void OnConnect() {
-        Debug.Log(tcp.GetLocalAddress());
-        Debug.Log(tcp.GetRemoteAddress());
+
         Message message = new Message(Message.Request, Message.NewPlayerReq, 29);
         message.AddContentString(UIManager.instance.usernameField.text);
         tcp.SendData(message);
     }
 
-    public void HandleMessage(Message message) {
-        ThreadManager.ExecuteOnMainThread( () => {
+    public void OnApplicationQuit() {
+        OnDisconnect();
+    }
 
-            ResponseHandler handler;            
-            if(!responseHandlers.TryGetValue(message.ID, out handler)) {
-                handler = responseHandlers[DEFAULT_HANDLER];
-            }
-            handler(message);
-        });
+    public void OnDisable() {
+        OnDisconnect();
+    }
+
+    public void OnDisconnect() {
+        tcp.OnDisconnect();
+    }
+
+    public IEnumerator HandleMessage(Message message) {
+        ResponseHandler handler;            
+        if(!responseHandlers.TryGetValue(message.ID, out handler)) {
+            handler = responseHandlers[DEFAULT_HANDLER];
+        }
+        handler(message);
+        yield return null;
     }
 
     private void InitializeClientData()
@@ -64,4 +73,5 @@ public class Client : MonoBehaviour
         };
         Debug.Log("Initialized packets.");
     }
+
 }
