@@ -22,6 +22,9 @@ public class Client : MonoBehaviour
     [SerializeField]
     private Lobby lobby;
 
+    [SerializeField]
+    private WaitPopup waitPopup;
+
     private void Start()
     {
         tcp = new TCP(ip, port);
@@ -75,18 +78,9 @@ public class Client : MonoBehaviour
         responseHandlers = new Dictionary<int, ResponseHandler>()
         {
             { DEFAULT_HANDLER, DefaultHandle},
-            { Message.UpdateLobbyResp, UpdateLobby}
+            { Message.UpdateLobbyResp, UpdateLobbyHandle},
+            { Message.WaitForChallengeResp, WaitForChallengeResponseHandle}
         };
-    }
-
-    public void DefaultHandle(Message message) {
-        message.GetContentStringList().ForEach(Debug.Log);
-        // Debug.Log($"Message from server: {message.GetContentStringList()}");
-    }
-
-    public void UpdateLobby(Message message) {
-        List<string> players = message.GetContentStringList();
-        lobby.SetPlayersInLobby(players);
     }
 
     public void SetUsername(string username) {
@@ -101,5 +95,22 @@ public class Client : MonoBehaviour
         message.AddContentString(opponentUsername);
         tcp.SendData(message);
     }
+
+
+    // RESPONSE HANDLERS
+    public void DefaultHandle(Message message) {
+        message.GetContentStringList().ForEach(Debug.Log);
+        // Debug.Log($"Message from server: {message.GetContentStringList()}");
+    }
+
+    public void UpdateLobbyHandle(Message message) {
+        List<string> players = message.GetContentStringList();
+        lobby.SetPlayersInLobby(players);
+    }
+
+    public void WaitForChallengeResponseHandle(Message message) {
+        waitPopup.Popup(message.GetContentStringList()[0]);
+    }
+
 
 }
