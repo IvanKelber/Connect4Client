@@ -7,11 +7,17 @@ public class Lobby : MonoBehaviour
     [SerializeField]
     private GameObject listItemPrefab;
 
+    [SerializeField]
+    private Client client;
+
     List<string> playersInLobby = new List<string>();
     private bool isDirty = false;
     
     [SerializeField]
     private List<string> names;
+
+
+
     void Start()
     {
         
@@ -49,6 +55,7 @@ public class Lobby : MonoBehaviour
             } else {
                 t.gameObject.SetActive(true);
                 ListItem listItem = t.GetComponent<ListItem>();
+                listItem.SetClient(client);
                 listItem.UpdateUsername(playersInLobby[i]);
             }
             i++;
@@ -56,6 +63,7 @@ public class Lobby : MonoBehaviour
         for(;i < playersInLobby.Count;i++) {
             ListItem listItem = Instantiate(listItemPrefab, transform.position, Quaternion.identity).GetComponent<ListItem>();
             listItem.transform.parent = transform;
+            listItem.SetClient(client);
             listItem.UpdateUsername(playersInLobby[i]);
         }
         isDirty = false;

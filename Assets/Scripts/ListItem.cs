@@ -19,7 +19,11 @@ public class ListItem : MonoBehaviour
         usernameText.text = this.username;
     }
 
+    public void SetClient(Client client) {
+        this.client = client;
+    }
+
     public void OnClick() {
-        Debug.Log(username + " clicked");
+        client.SendGameRequest(username);
     }
 }
