@@ -76,6 +76,7 @@ public class Message
 
         //Third serialize the delimiter (if any) to be used when parsing the content
         builder.Append(delimiter);
+        builder.Append(DELIMITER);
 
         //Last append the content
         foreach(byte[] s in Content) {

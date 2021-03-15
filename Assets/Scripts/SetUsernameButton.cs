@@ -15,11 +15,7 @@ public class SetUsernameButton : MonoBehaviour
     private TMP_Text buttonText;
 
     public void Update() {
-        if(client.IsConnected) {
-            buttonText.text = "Update username";
-        } else{
-            buttonText.text = "Connect to Server";
-        }
+        buttonText.text = "Set username";
     }
 
     public void OnClick()
