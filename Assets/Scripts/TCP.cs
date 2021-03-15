@@ -135,7 +135,6 @@ public class TCP
                             if(data[i] == Message.END_OF_MESSAGE) {
                                 ms.Write(data, 0, i);
                                 endOfMessage = true;
-                                Debug.Log("Found end of message character: " + data[i]);
                             } else if (endOfMessage) {
                                 leftOverBytes.Add(data[i]);
                             }
