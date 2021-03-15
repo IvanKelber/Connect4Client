@@ -97,6 +97,9 @@ public class Client : MonoBehaviour
 
     public void SendGameRequest(string opponentUsername) {
         Debug.Log("Sending a game request to opponent " + opponentUsername);
+        Message message = new Message(Message.Request, Message.ChallengePlayerReq, 29);
+        message.AddContentString(opponentUsername);
+        tcp.SendData(message);
     }
 
 }

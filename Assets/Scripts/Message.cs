@@ -18,17 +18,17 @@ public class Message
 	public const int StartTurnReq = 2;
 	public const int PlacePieceReq = 3;
 	public const int UpdateStateReq = 4;
-	public const int AnimationDoneReq = 5;
-	public const int GameOverReq = 6;
+    public const int ChallengePlayerReq = 5;
+    public const int ProposalAnswerReq = 6; // bool
  
 	public const int NewPlayerResp = 0;
 	public const int StartGameResp = 1;
 	public const int StartTurnResp = 2;
 	public const int PlacePieceResp = 3;
-	public const int UpdateStateResp = 4;
-	public const int AnimationDoneResp = 5;
-	public const int GameOverResp = 6;
-    public const int UpdateLobbyResp = 7;
+    public const int UpdateLobbyResp = 4;
+    public const int ChallengeProposalResp = 5;
+    public const int WaitForChallengeResp = 6;
+    public const int ChallengeRejectedResp = 7;
 
     public byte Type;
     public byte ID;
