@@ -15,12 +15,18 @@ public class Client : MonoBehaviour
     public TCP tcp;
 
     private delegate void ResponseHandler(Message _message);
-    private static Dictionary<int, ResponseHandler> responseHandlers;
+    private Dictionary<int, ResponseHandler> responseHandlers;
+
+    public bool IsConnected = false;
+
+    [SerializeField]
+    private Lobby lobby;
 
     private void Start()
     {
         tcp = new TCP(ip, port);
         tcp.SetConnectCB(OnConnect);
+        ConnectToServer();
     }
 
     private void Update() {
@@ -29,7 +35,7 @@ public class Client : MonoBehaviour
         }
     }
 
-    public void ConnectToServer()
+    private void ConnectToServer()
     {
         InitializeClientData();
 
@@ -39,9 +45,8 @@ public class Client : MonoBehaviour
 
     public void OnConnect() {
 
-        Message message = new Message(Message.Request, Message.NewPlayerReq, 29);
-        message.AddContentString(UIManager.instance.usernameField.text);
-        tcp.SendData(message);
+        IsConnected = true;
+        Debug.Log("Established Connection");
     }
 
     public void OnApplicationQuit() {
@@ -69,9 +74,26 @@ public class Client : MonoBehaviour
     {
         responseHandlers = new Dictionary<int, ResponseHandler>()
         {
-            { DEFAULT_HANDLER,             ClientHandle.Default},
+            { DEFAULT_HANDLER, DefaultHandle},
+            { Message.UpdateLobbyResp, UpdateLobby}
         };
-        Debug.Log("Initialized packets.");
     }
+
+    public void DefaultHandle(Message message) {
+        message.GetContentStringList().ForEach(Debug.Log);
+        // Debug.Log($"Message from server: {message.GetContentStringList()}");
+    }
+
+    public void UpdateLobby(Message message) {
+        List<string> players = message.GetContentStringList();
+        lobby.SetPlayersInLobby(players);
+    }
+
+    public void SetUsername(string username) {
+        Message message = new Message(Message.Request, Message.NewPlayerReq, 29);
+        message.AddContentString(username);
+        tcp.SendData(message);
+    }
+
 
 }

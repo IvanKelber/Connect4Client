@@ -28,6 +28,7 @@ public class Message
 	public const int UpdateStateResp = 4;
 	public const int AnimationDoneResp = 5;
 	public const int GameOverResp = 6;
+    public const int UpdateLobbyResp = 7;
 
     public byte Type;
     public byte ID;
