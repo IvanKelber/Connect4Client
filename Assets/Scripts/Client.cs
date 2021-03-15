@@ -26,6 +26,10 @@ public class Client : MonoBehaviour
     private void Update() {
         if(tcp.MessagesNeedProcessing) {
             StartCoroutine(HandleMessage(tcp.NextMessage()));
+            Debug.Log("Messages need processing");
+        }
+        if(Input.GetKeyDown(KeyCode.Space)) {
+            Debug.Log("Messages in queue: " + tcp.MessageCount);
         }
     }
 

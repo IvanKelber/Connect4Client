@@ -69,8 +69,9 @@ public class ByteBuffer
         } 
     }
 
-    public void Clear() {
+    public void Reset() {
         data.Clear();
+        lastRead = 0;
     }
 
     public void Catchup() {

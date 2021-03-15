@@ -32,6 +32,12 @@ public class TCP
         }
     }
 
+    public int MessageCount {
+        get {
+            return messagesToProcess.Count;
+        }
+    }
+
     public TCP(string ip, int port) {
         this.ip = ip;
         this.port = port;
@@ -77,7 +83,6 @@ public class TCP
 
     public void OnWriteComplete(IAsyncResult _result) {
         stream.EndWrite(_result);
-        ListenForResponse();
     }
 
     private void OnConnect(IAsyncResult _result)
@@ -109,39 +114,54 @@ public class TCP
     }
 
     private void ListenForResponse() {
-        Debug.Log("Listening for response");
+        List<byte> leftOverBytes = new List<byte>();
+        Debug.Log("Listening for resonse");
         while (listening) {
-            while(socket.Available == 0) {
-                //wait
-                Thread.Sleep(1);
-            }
+            Thread.Sleep(10);
             // If there's data available then we read a byte
             using (MemoryStream ms = new MemoryStream())
             {
-                string str;
-                while(socket.Available > 0) {
+                ms.Write(leftOverBytes.ToArray(), 0, leftOverBytes.Count);
+                leftOverBytes.Clear();
+                bool endOfMessage = socket.Available == 0;
+                while(!endOfMessage) {
                     byte[] data = new byte[socket.Available];
                     int numBytesRead = 0;
-                    int bytesRead = 0;
-                    while ( bytesRead < socket.Available &&
+                    while ( socket.Available > 0 &&
                         (numBytesRead = stream.Read(data, 0, data.Length)) > 0)
                     {
-                        bytesRead += numBytesRead;
-                        ms.Write(data, 0, numBytesRead);
+                        int i;
+                        for(i = 0; i < data.Length; i++) {
+                            if(data[i] == Message.END_OF_MESSAGE) {
+                                ms.Write(data, 0, i);
+                                endOfMessage = true;
+                                Debug.Log("Found end of message character: " + data[i]);
+                            } else if (endOfMessage) {
+                                leftOverBytes.Add(data[i]);
+                            }
+                        }
+                        if(!endOfMessage) {
+                            // Debug.Log("End of message not found yet.  Need to read more bytes");
+                            ms.Write(data, 0, numBytesRead);
+                        }
+    
                     }
                 }
                 receiveBuffer.Write(ms.ToArray());
                 if(receiveBuffer.Count > 0) {
+                    Debug.Log("Receive buffer: " + receiveBuffer.ToString());
                     OnReceive();
                 }
             }
         }
+        Debug.Log("Stopped Listening");
     }
 
     private void OnReceive()
     {
         Message msg = Message.Deserialize(receiveBuffer);
         messagesToProcess.Enqueue(msg);
+        receiveBuffer.Reset();
     }
 
     public Message NextMessage() {
