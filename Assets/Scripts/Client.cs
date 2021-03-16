@@ -17,13 +17,17 @@ public class Client : MonoBehaviour
     private delegate void ResponseHandler(Message _message);
     private Dictionary<int, ResponseHandler> responseHandlers;
 
+    [HideInInspector]
     public bool IsConnected = false;
 
     [SerializeField]
     private Lobby lobby;
 
     [SerializeField]
-    private WaitPopup waitPopup;
+    private WaitPopup waitPopup;    
+    
+    [SerializeField]
+    private ChallengeProposalPopup challengeProposalPopup;
 
     private void Start()
     {
@@ -79,7 +83,9 @@ public class Client : MonoBehaviour
         {
             { DEFAULT_HANDLER, DefaultHandle},
             { Message.UpdateLobbyResp, UpdateLobbyHandle},
-            { Message.WaitForChallengeResp, WaitForChallengeResponseHandle}
+            { Message.WaitForChallengeResp, WaitForChallengeResponseHandle},
+            { Message.ChallengeProposalResp, ChallengeProposalHandle}
+
         };
     }
 
@@ -110,6 +116,10 @@ public class Client : MonoBehaviour
 
     public void WaitForChallengeResponseHandle(Message message) {
         waitPopup.Popup(message.GetContentStringList()[0]);
+    }
+
+    public void ChallengeProposalHandle(Message message) {
+        challengeProposalPopup.Popup(message.GetContentStringList()[0]);
     }
 
 

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-public class WaitPopup : MonoBehaviour
+public class ChallengeProposalPopup : MonoBehaviour
 {
-
     [SerializeField]
     private Timer timer;
 
     [SerializeField]
-    private TMP_Text waitDescription;
+    private TMP_Text challengeDescription;
 
     private bool poppedUp = false;
 
@@ -19,35 +18,31 @@ public class WaitPopup : MonoBehaviour
     {
         if(poppedUp) {
             if(timer.IsDone) {
-                // The opponent never responded to the challenge proposal
+                // Automatically reject the challenge proposal after the timer is done
                 Reject();
-            }
-
-            if(Input.GetKeyDown(KeyCode.Escape)) {
-                Cancel();
             }
         }
 
     }
 
     public void Popup(string opponent) {
-        UpdateWaitDescription(opponent);
+        UpdateChallengeDescription(opponent);
         timer.StartCountdown();
         poppedUp = true;
         gameObject.SetActive(true);
     }
 
-    public void UpdateWaitDescription(string opponent) {
-        waitDescription.text = "Waiting for " + opponent + " to respond...";
+    public void UpdateChallengeDescription(string opponent) {
+        challengeDescription.text = opponent + " has challenged you to a game";
     }
 
     public void Reject() {
-        Debug.Log("Request was rejected");
+        Debug.Log("Rejecting request");
         Hide();
     }
 
-    public void Cancel() {
-        Debug.Log("Cancelling Request");
+    public void Accept() {
+        Debug.Log("Accepting Request");
         Hide();
     }
 
