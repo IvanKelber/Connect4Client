@@ -12,6 +12,11 @@ public class WaitPopup : MonoBehaviour
     [SerializeField]
     private TMP_Text waitDescription;
 
+    [SerializeField]
+    private Client client;
+
+    private string opponent;
+
     private bool poppedUp = false;
 
     // Update is called once per frame
@@ -39,6 +44,7 @@ public class WaitPopup : MonoBehaviour
 
     public void UpdateWaitDescription(string opponent) {
         waitDescription.text = "Waiting for " + opponent + " to respond...";
+        this.opponent = opponent;
     }
 
     public void Reject() {
@@ -48,6 +54,7 @@ public class WaitPopup : MonoBehaviour
 
     public void Cancel() {
         Debug.Log("Cancelling Request");
+        client.CancelChallengeProposal(opponent);
         Hide();
     }
 

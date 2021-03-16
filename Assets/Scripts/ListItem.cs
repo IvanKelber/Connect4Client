@@ -24,6 +24,6 @@ public class ListItem : MonoBehaviour
     }
 
     public void OnClick() {
-        client.SendGameRequest(username);
+        client.SendChallengeProposalReq(username);
     }
 }

@@ -11,6 +11,10 @@ public class ChallengeProposalPopup : MonoBehaviour
     [SerializeField]
     private TMP_Text challengeDescription;
 
+    [SerializeField]
+    Client client;
+
+    private string opponent;
     private bool poppedUp = false;
 
     // Update is called once per frame
@@ -34,15 +38,23 @@ public class ChallengeProposalPopup : MonoBehaviour
 
     public void UpdateChallengeDescription(string opponent) {
         challengeDescription.text = opponent + " has challenged you to a game";
+        this.opponent = opponent;
     }
 
     public void Reject() {
         Debug.Log("Rejecting request");
+        client.RejectChallengeProposal(opponent);
         Hide();
     }
 
     public void Accept() {
         Debug.Log("Accepting Request");
+        client.AcceptChallengeProposal(opponent);
+        Hide();
+    }
+
+    public void Cancel() {
+        Debug.Log("Opponent canceled the request");
         Hide();
     }
 

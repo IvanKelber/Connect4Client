@@ -17,6 +17,8 @@ public class Client : MonoBehaviour
     private delegate void ResponseHandler(Message _message);
     private Dictionary<int, ResponseHandler> responseHandlers;
 
+    private string username;
+
     [HideInInspector]
     public bool IsConnected = false;
 
@@ -77,36 +79,60 @@ public class Client : MonoBehaviour
         yield return null;
     }
 
-    private void InitializeClientData()
-    {
-        responseHandlers = new Dictionary<int, ResponseHandler>()
-        {
-            { DEFAULT_HANDLER, DefaultHandle},
-            { Message.UpdateLobbyResp, UpdateLobbyHandle},
-            { Message.WaitForChallengeResp, WaitForChallengeResponseHandle},
-            { Message.ChallengeProposalResp, ChallengeProposalHandle}
 
-        };
-    }
+    // ========================  REQUEST METHODS  ===========================
 
     public void SetUsername(string username) {
-        Message message = new Message(Message.Request, Message.NewPlayerReq, 29);
+        Message message = new Message(Message.Request, 
+                                      Message.NewPlayerReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
         message.AddContentString(username);
+        this.username = username;
         tcp.SendData(message);
     }
 
-    public void SendGameRequest(string opponentUsername) {
-        Debug.Log("Sending a game request to opponent " + opponentUsername);
-        Message message = new Message(Message.Request, Message.ChallengePlayerReq, 29);
+    public void SendChallengeProposalReq(string opponentUsername) {
+        if(opponentUsername == username) {
+            Debug.Log("Challenging yourself. TODO check against this");
+        }
+        Debug.Log("Sending a challenge proposal to opponent " + opponentUsername);
+        Message message = new Message(Message.Request, 
+                                      Message.ChallengePlayerReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
         message.AddContentString(opponentUsername);
         tcp.SendData(message);
     }
 
+    public void AcceptChallengeProposal(string opponentUsername) {
+        Message message = new Message(Message.Request, 
+                                      Message.ProposalAnswerReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
+        message.AddContentByte(Message.TRUE_BYTE); // True
+        message.AddContentString(opponentUsername);
+        message.AddContentString(username);
+        tcp.SendData(message);
+    }
 
-    // RESPONSE HANDLERS
+    public void RejectChallengeProposal(string opponentUsername) {
+        Message message = new Message(Message.Request, 
+                                      Message.ProposalAnswerReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
+        message.AddContentByte(Message.FALSE_BYTE); // False
+        message.AddContentString(opponentUsername);
+        tcp.SendData(message);
+    }
+
+    public void CancelChallengeProposal(string opponentUsername) {
+        Message message = new Message(Message.Request, 
+                                      Message.CancelProposalReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
+        message.AddContentString(opponentUsername);
+        tcp.SendData(message);
+    }
+
+    // ========================  RESPONSE HANDLERS  ===========================
     public void DefaultHandle(Message message) {
         message.GetContentStringList().ForEach(Debug.Log);
-        // Debug.Log($"Message from server: {message.GetContentStringList()}");
     }
 
     public void UpdateLobbyHandle(Message message) {
@@ -122,5 +148,31 @@ public class Client : MonoBehaviour
         challengeProposalPopup.Popup(message.GetContentStringList()[0]);
     }
 
+    public void StartGameHandle(Message message) {
+        Debug.Log("Starting game!");
+    }
 
+    public void RejectedProposalHandle(Message message) {
+        waitPopup.Reject();
+    }
+
+    public void ProposalCanceledHandle(Message message) {
+        challengeProposalPopup.Cancel();
+    }
+
+
+
+    private void InitializeClientData()
+    {
+        responseHandlers = new Dictionary<int, ResponseHandler>()
+        {
+            { DEFAULT_HANDLER, DefaultHandle},
+            { Message.UpdateLobbyResp, UpdateLobbyHandle},
+            { Message.WaitForChallengeResp, WaitForChallengeResponseHandle},
+            { Message.ChallengeProposalResp, ChallengeProposalHandle},
+            { Message.StartGameResp, StartGameHandle},
+            { Message.ChallengeRejectedResp, RejectedProposalHandle},
+            { Message.CancelProposalResp, ProposalCanceledHandle}
+        };
+    }
 }

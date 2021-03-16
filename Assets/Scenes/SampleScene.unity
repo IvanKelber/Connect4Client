@@ -1819,6 +1819,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timer: {fileID: 1569594351}
   waitDescription: {fileID: 445241040}
+  client: {fileID: 1143803828}
 --- !u!1 &1048534825
 GameObject:
   m_ObjectHideFlags: 0
@@ -3009,6 +3010,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timer: {fileID: 1669329458}
   challengeDescription: {fileID: 1048534827}
+  client: {fileID: 1143803828}
 --- !u!114 &2051949531
 MonoBehaviour:
   m_ObjectHideFlags: 0
