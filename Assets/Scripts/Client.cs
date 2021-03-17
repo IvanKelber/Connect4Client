@@ -31,6 +31,9 @@ public class Client : MonoBehaviour
     [SerializeField]
     private ChallengeProposalPopup challengeProposalPopup;
 
+    [SerializeField]
+    private Game game;
+
     private void Start()
     {
         tcp = new TCP(ip, port);
@@ -149,7 +152,12 @@ public class Client : MonoBehaviour
     }
 
     public void StartGameHandle(Message message) {
-        Debug.Log("Starting game!");
+        List<string> content = message.GetContentStringList();
+        string gameId = content[0];
+
+        bool isMyTurn = message.Content[1][0] == Message.TRUE_BYTE;
+        Debug.Log("Starting game with id " + gameId + ".  Is it my turn? " + isMyTurn);
+        game.StartGame(gameId, isMyTurn);
     }
 
     public void RejectedProposalHandle(Message message) {
