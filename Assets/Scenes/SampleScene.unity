@@ -2027,7 +2027,7 @@ MonoBehaviour:
   lobby: {fileID: 2113549660}
   waitPopup: {fileID: 1028786198}
   challengeProposalPopup: {fileID: 2051949530}
-  game: {fileID: 0}
+  game: {fileID: 1523032654}
 --- !u!4 &1143803830
 Transform:
   m_ObjectHideFlags: 0
@@ -2573,6 +2573,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   client: {fileID: 1143803828}
   canvas: {fileID: 355815314}
+  danielCam: {fileID: 519420031}
 --- !u!4 &1523032655
 Transform:
   m_ObjectHideFlags: 0
