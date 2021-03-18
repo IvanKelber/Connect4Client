@@ -44,18 +44,28 @@ public class Game : MonoBehaviour
             isMyTurn = true;
         }
         mousePosition = danielCam.ScreenToWorldPoint(Input.mousePosition);
-        if(Input.GetMouseButtonDown(0) && IsMyTurn) {
+        if(IsMyTurn) {
             RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, 0, clickMask);
+            int columnPlaced = -1;
             if(hit) {
                 ColumnCollider col = hit.transform.GetComponent<ColumnCollider>();
                 if(col != null) {
-                    int columnPlaced = col.CheckColumn();
-                    if(columnPlaced >= 0) {
-                        board.DropPiece(columnPlaced, clientColor);
-                        client.PlacePiece(gameId, columnPlaced);
-                        EndTurn();
+                    columnPlaced = col.CheckColumn();
+                    if(columnPlaced >= 0) { 
+                        int row = board.FindPieceRowFromColumn(columnPlaced);
+                        board.ShowPieceHint(columnPlaced, row, clientColor);
+                    } else {
+                        board.HidePieceHint();
                     }
                 }
+            } else {
+                // If we are not hovering over a column
+                board.HidePieceHint();
+            }
+            if(Input.GetMouseButtonDown(0) && columnPlaced >= 0) {
+                board.DropPiece(columnPlaced, clientColor);
+                client.PlacePiece(gameId, columnPlaced);
+                EndTurn();
             }
         }
     }
@@ -66,6 +76,7 @@ public class Game : MonoBehaviour
 
     public void EndTurn() {
         isMyTurn = false;
+        board.HidePieceHint();
     }
 
     public void StartGame(string gameId, bool isMyTurn) {

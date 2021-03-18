@@ -25,6 +25,9 @@ public class Board : MonoBehaviour
     [SerializeField]
     private BoardBase boardBase;
 
+    [SerializeField]
+    private Piece pieceHint;
+
     private Tile[,] tiles;
 
 
@@ -45,6 +48,10 @@ public class Board : MonoBehaviour
     
     void Start() {
         Render();
+        pieceHint.gameObject.SetActive(false);
+        pieceHint.DisablePhysics();
+        pieceHint.SetBoard(this);
+        pieceHint.UpdateSize(SideLength);
     }
 
     void Update() {
@@ -111,6 +118,14 @@ public class Board : MonoBehaviour
         }
     }
 
+    public int FindPieceRowFromColumn(int column) {
+        int i = Dimensions.y - 1; // Number of rows
+        while(i >= 0 && tiles[column, i].IsOccupied) {
+            i--;
+        }
+        return i;
+    }
+
     public void DropPiece(int column, Color pieceColor) {
         // Column is validated before this function is called
         Piece piece = Instantiate(piecePrefab, GetDropPosition(column), Quaternion.identity).GetComponent<Piece>();
@@ -120,11 +135,17 @@ public class Board : MonoBehaviour
         piece.SetBoard(this);
         piece.transform.parent = transform;
 
-        int i = Dimensions.y - 1; // Number of rows
-        while(i >= 0 && tiles[column, i].IsOccupied) {
-            i--;
-        }
-        tiles[column,i].SetOccupied();
+        tiles[column,FindPieceRowFromColumn(column)].SetOccupied();
+    }
+
+    public void ShowPieceHint(int column, int row, Color color) {
+        pieceHint.gameObject.SetActive(true);
+        pieceHint.SetColor(new Color(color.r, color.g, color.b, .5f));
+        pieceHint.transform.position = tiles[column, row].transform.position;
+    }
+
+    public void HidePieceHint() {
+        pieceHint.gameObject.SetActive(false);
     }
 
     public bool IsColumnValid(int column) {

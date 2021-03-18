@@ -43,6 +43,11 @@ public class Piece : MonoBehaviour
         this.board = board;
     }
 
+    public void DisablePhysics() {
+        rb.isKinematic = true;
+        collider.enabled = false;
+    }
+
     void Update() {
         if(!atRest && rb.velocity == Vector2.zero) {
             // board.EndTurn();
