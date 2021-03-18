@@ -17,6 +17,9 @@ public class Game : MonoBehaviour
     [SerializeField]
     private LayerMask clickMask;
 
+    [SerializeField]
+    private Board board;
+
     private string gameId;
     private bool isMyTurn;
     public bool IsMyTurn {
@@ -24,7 +27,7 @@ public class Game : MonoBehaviour
             return isMyTurn;
         }
     }
-    private Color chipColor;
+    private Color clientColor = Color.red;
     private Color opponentColor;
 
     private Vector3 mousePosition;
@@ -42,11 +45,16 @@ public class Game : MonoBehaviour
         }
         mousePosition = danielCam.ScreenToWorldPoint(Input.mousePosition);
         if(Input.GetMouseButtonDown(0) && IsMyTurn) {
-            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, clickMask);
+            RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, 0, clickMask);
             if(hit) {
                 ColumnCollider col = hit.transform.GetComponent<ColumnCollider>();
                 if(col != null) {
-                    col.OnClick();
+                    int columnPlaced = col.CheckColumn();
+                    if(columnPlaced >= 0) {
+                        board.DropPiece(columnPlaced, clientColor);
+                        // client.PlacePiece(gameId, columnPlaced);
+                        EndTurn();
+                    }
                 }
             }
         }
@@ -64,12 +72,14 @@ public class Game : MonoBehaviour
         this.gameId = gameId;
         this.isMyTurn = isMyTurn;
         if(isMyTurn) {
-            chipColor = Color.red;
+            clientColor = Color.red;
             opponentColor = Color.black;
         } else {
-            chipColor = Color.black;
+            clientColor = Color.black;
             opponentColor = Color.red;
         }
         canvas.gameObject.SetActive(false);
+        gameObject.SetActive(true);
     }
+
 }

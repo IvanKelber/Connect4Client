@@ -32,7 +32,7 @@ public class ColumnCollider : MonoBehaviour
         this.column = column;
     }
 
-    public void OnClick() {
-        Debug.Log($"Column {column} clicked");
+    public int CheckColumn() {
+        return board.IsColumnValid(column) ? column : -1;
     }
 }

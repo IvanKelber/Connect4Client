@@ -48,10 +48,7 @@ public class Board : MonoBehaviour
     }
 
     void Update() {
-        if(Input.GetKeyDown(KeyCode.Space)) {
-            Clear();
-            Render();
-        }
+
 
     }
 
@@ -64,6 +61,7 @@ public class Board : MonoBehaviour
         tiles = new Tile[Dimensions.x, Dimensions.y];
         CalculateCellWidth();
         UpdateCorners();
+        // StartCoroutine(SlowRender());
         RenderTiles();
         border.Width = cellWidth * Dimensions.x;
         border.Height = cellHeight * Dimensions.y;
@@ -73,8 +71,34 @@ public class Board : MonoBehaviour
         CreateColumnColliders(Dimensions.x);
     }
 
+
+    // Used for debugging the order of tile creation
+    private IEnumerator SlowRender() {
+        for(int i = 0; i < Dimensions.x; i++) {
+            
+            for(int j = 0; j < Dimensions.y; j++) {
+                yield return new WaitForSeconds(.1f);
+                Vector3 tileCenter = topLeft + Vector3.right * i * cellWidth
+                                             + Vector3.down * j * cellHeight;
+                GameObject tile = Instantiate(tilePrefab, tileCenter, Quaternion.identity);
+                tile.transform.parent = transform;
+                Tile t = tile.GetComponent<Tile>();
+                t.UpdateSideLength(cellWidth);
+                tiles[i,j] = t;
+            }
+        }
+
+        border.Width = cellWidth * Dimensions.x;
+        border.Height = cellHeight * Dimensions.y;
+        border.Color = tiles[0,0].tileColor;
+        boardBase.UpdateSize(border.Width + 1, .2f * cellHeight);
+        boardBase.UpdatePosition(transform.position + Vector3.down * (border.Height/2 + (.2f * cellHeight)/2));
+        CreateColumnColliders(Dimensions.x);
+
+    }
+
     private Vector3 GetDropPosition(int column) {
-        return tiles[column - 1, 0].transform.position + Vector3.up * cellHeight * 1.5f;
+        return tiles[column, 0].transform.position + Vector3.up * cellHeight * 1.5f;
     }
 
     private void CreateColumnColliders(int columns) {
@@ -83,18 +107,33 @@ public class Board : MonoBehaviour
             ColumnCollider col = Instantiate(columnColliderPrefab, position, Quaternion.identity).GetComponent<ColumnCollider>();
             col.Init(this, i);
             col.UpdateSize(new Vector2(cellHeight, cellHeight * Dimensions.y));
+            col.transform.parent = transform;
         }
     }
 
-    public void PlacePiece(int playerId, Color playerColor, int column) {
+    public void DropPiece(int column, Color pieceColor) {
+        // Column is validated before this function is called
         Piece piece = Instantiate(piecePrefab, GetDropPosition(column), Quaternion.identity).GetComponent<Piece>();
         pieceGOs.Add(piece);
-        
-        piece.SetColor(playerColor);
+        piece.SetColor(pieceColor);
         piece.UpdateSize(SideLength);
         piece.SetBoard(this);
         piece.transform.parent = transform;
-    
+
+        int i = Dimensions.y - 1; // Number of rows
+        while(i >= 0 && tiles[column, i].IsOccupied) {
+            i--;
+        }
+        tiles[column,i].SetOccupied();
+    }
+
+    public bool IsColumnValid(int column) {
+        for(int i = 0; i < Dimensions.y; i++) {
+            if(!tiles[column, i].IsOccupied) {
+                return true;
+            }
+        }
+        return false;
     }
 
     void Clear() {

@@ -133,6 +133,15 @@ public class Client : MonoBehaviour
         tcp.SendData(message);
     }
 
+    public void PlacePiece(string gameId, int column) {
+        Message message = new Message(Message.Request, 
+                                      Message.PlacePieceReq, 
+                                      Message.DEFAULT_CONTENT_DELIMITER);
+        message.AddContentString(gameId);
+        message.AddContentString(column.ToString());
+        tcp.SendData(message);
+    }
+
     // ========================  RESPONSE HANDLERS  ===========================
     public void DefaultHandle(Message message) {
         message.GetContentStringList().ForEach(Debug.Log);

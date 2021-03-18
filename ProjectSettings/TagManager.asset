@@ -14,8 +14,8 @@ TagManager:
   - 
   - 
   - ColumnCollider
-  - 
-  - 
+  - Piece
+  - BoardBase
   - 
   - 
   - 
