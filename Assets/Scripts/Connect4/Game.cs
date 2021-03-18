@@ -52,7 +52,7 @@ public class Game : MonoBehaviour
                     int columnPlaced = col.CheckColumn();
                     if(columnPlaced >= 0) {
                         board.DropPiece(columnPlaced, clientColor);
-                        // client.PlacePiece(gameId, columnPlaced);
+                        client.PlacePiece(gameId, columnPlaced);
                         EndTurn();
                     }
                 }
