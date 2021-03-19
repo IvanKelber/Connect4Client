@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decal: {fileID: 3189403049410208062}
   body: {fileID: 440756619347580116}
+  animationComplete: {fileID: 11400000, guid: 5f5194659aaba48249d1e0660bbf295f, type: 2}
 --- !u!61 &-3432295218756194775
 BoxCollider2D:
   m_ObjectHideFlags: 0

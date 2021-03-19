@@ -177,7 +177,22 @@ public class Client : MonoBehaviour
         challengeProposalPopup.Cancel();
     }
 
+    public void PlacePieceHandle(Message message) {
+        // Opponent has placed a piece
+        List<string> content = message.GetContentStringList();
+        int column = content[0][0] - '0';
 
+        bool gameOver = message.Content[1][0] == Message.TRUE_BYTE;
+        bool iWon = message.Content[2][0] == Message.TRUE_BYTE;
+        if(gameOver) {
+            if(iWon) {
+                Debug.Log("I won");
+            } else {
+                Debug.Log("I lose");
+            }
+        }
+        game.PlaceOpponentPiece(column, gameOver, iWon);
+    }
 
     private void InitializeClientData()
     {
@@ -189,7 +204,8 @@ public class Client : MonoBehaviour
             { Message.ChallengeProposalResp, ChallengeProposalHandle},
             { Message.StartGameResp, StartGameHandle},
             { Message.ChallengeRejectedResp, RejectedProposalHandle},
-            { Message.CancelProposalResp, ProposalCanceledHandle}
+            { Message.CancelProposalResp, ProposalCanceledHandle},
+            { Message.PlacePieceResp, PlacePieceHandle}
         };
     }
 }

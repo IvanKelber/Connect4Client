@@ -32,12 +32,13 @@ public class Game : MonoBehaviour
 
     private Vector3 mousePosition;
 
-    void Start()
-    {
-        
-    }
+    private bool gameOver = false;
+    private bool iWon = false;
 
-    // Update is called once per frame
+    private bool enemyPieceFalling = false;
+
+    private int columnPlaced;
+
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Space)) {
@@ -64,11 +65,18 @@ public class Game : MonoBehaviour
             }
             if(Input.GetMouseButtonDown(0) && columnPlaced >= 0) {
                 board.DropPiece(columnPlaced, clientColor);
-                client.PlacePiece(gameId, columnPlaced);
+                this.columnPlaced = columnPlaced;
                 EndTurn();
             }
         }
     }
+
+    public void PlaceOpponentPiece(int column, bool gameOver, bool iWon) {
+        board.DropPiece(column, opponentColor);
+        this.gameOver = gameOver;
+        this.iWon = iWon;
+        enemyPieceFalling = true;
+    } 
 
     public void StartTurn() {
         isMyTurn = true;
@@ -91,6 +99,21 @@ public class Game : MonoBehaviour
         }
         canvas.gameObject.SetActive(false);
         gameObject.SetActive(true);
+    }
+
+    public void OnAnimationComplete() {
+        if(enemyPieceFalling) {
+            enemyPieceFalling = false;
+            isMyTurn = !gameOver;
+        } else {
+            client.PlacePiece(gameId, columnPlaced);
+            EndTurn();
+        }
+
+        if(gameOver) {
+            Debug.Log("GAME IS OVER");
+            Debug.Log(iWon? "AND I AM THE WINNER" : "AND I AM THE LOSER");
+        }
     }
 
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Shapes;
+using ScriptableObjectArchitecture;
 
 public class Piece : MonoBehaviour
 {
@@ -13,6 +14,9 @@ public class Piece : MonoBehaviour
 
     [SerializeField]
     private Disc body;
+
+    [SerializeField]
+    private GameEvent animationComplete;
 
     private Board board;
 
@@ -50,7 +54,7 @@ public class Piece : MonoBehaviour
 
     void Update() {
         if(!atRest && rb.velocity == Vector2.zero) {
-            // board.EndTurn();
+            animationComplete.Raise();
             atRest = true;
         }
     }

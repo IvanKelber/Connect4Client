@@ -10,13 +10,14 @@ GameObject:
   m_Component:
   - component: {fileID: 6697865835256638321}
   - component: {fileID: 6697865835256638322}
+  - component: {fileID: 1373468446605168316}
   m_Layer: 0
   m_Name: Game
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6697865835256638321
 Transform:
   m_ObjectHideFlags: 0
@@ -51,6 +52,38 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   board: {fileID: 6697865836771896471}
+--- !u!114 &1373468446605168316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6697865835256638323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5758ca93461aeeb4589456a052b07d74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _showDebugFields: 0
+  _enableGizmoDebugging: 1
+  _debugColor: {r: 0, g: 1, b: 1, a: 1}
+  _previouslyRegisteredEvent: {fileID: 0}
+  _event: {fileID: 11400000, guid: 5f5194659aaba48249d1e0660bbf295f, type: 2}
+  _response:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6697865835256638322}
+        m_TargetAssemblyTypeName: Game, Assembly-CSharp
+        m_MethodName: OnAnimationComplete
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1001 &4826772244865703351
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -134,9 +167,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6697865835256638321}
     m_Modifications:
+    - target: {fileID: 2541282165245524506, guid: 57f4bf2cae0e24cc3b5b9c8ce66b4be2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2541282165521318561, guid: 57f4bf2cae0e24cc3b5b9c8ce66b4be2, type: 3}
       propertyPath: m_Layer
       value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2541282165521318564, guid: 57f4bf2cae0e24cc3b5b9c8ce66b4be2, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2541282166252870325, guid: 57f4bf2cae0e24cc3b5b9c8ce66b4be2, type: 3}
       propertyPath: m_Name
