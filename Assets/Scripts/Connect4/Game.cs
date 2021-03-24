@@ -71,10 +71,8 @@ public class Game : MonoBehaviour
         }
     }
 
-    public void PlaceOpponentPiece(int column, bool gameOver, bool iWon) {
+    public void PlaceOpponentPiece(int column) {
         board.DropPiece(column, opponentColor);
-        this.gameOver = gameOver;
-        this.iWon = iWon;
         enemyPieceFalling = true;
     } 
 
@@ -100,6 +98,14 @@ public class Game : MonoBehaviour
         canvas.gameObject.SetActive(false);
         gameObject.SetActive(true);
     }
+ 
+    public void GameOver(bool iWon) {
+        this.gameOver = true;
+        this.iWon = iWon;
+        if(!enemyPieceFalling) {
+            EndGame();
+        }
+    }
 
     public void OnAnimationComplete() {
         if(enemyPieceFalling) {
@@ -111,9 +117,13 @@ public class Game : MonoBehaviour
         }
 
         if(gameOver) {
-            Debug.Log("GAME IS OVER");
-            Debug.Log(iWon? "AND I AM THE WINNER" : "AND I AM THE LOSER");
+            EndGame();
         }
+    }
+
+    public void EndGame() {
+        Debug.Log("GAME IS OVER");
+        Debug.Log(iWon? "AND I AM THE WINNER" : "AND I AM THE LOSER");
     }
 
 }

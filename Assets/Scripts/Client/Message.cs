@@ -36,6 +36,7 @@ public class Message
     public const int WaitForChallengeResp = 6;
     public const int ChallengeRejectedResp = 7;
     public const int CancelProposalResp = 8;
+    public const int GameOverResp = 9;
 
     public byte Type;
     public byte ID;
